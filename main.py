@@ -8,12 +8,7 @@ CREDENTIALS_FILE = "credentials.json"
 CAPTIONS_FILE = "captions.json"
 RECORDS_FILE = "upload_record.json"
 
-def load_json(filepath, default_value):
-    if not os.path.exists(filepath):
-        # Create it with default value if missing
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(default_value, f, indent=2)
-        return default_value
+def load_json(filepath, default_value=[]):
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             return json.load(f)
@@ -26,18 +21,46 @@ def save_json(filepath, data):
         json.dump(data, f, indent=2)
 
 def main():
-    print("--- Instagram Video Automator ---")
+    print("--- Instagram Video Automator ---\n")
     
-    # 1. Check videos directory
+    # 1. Setup Phase
+    new_setup = False
+    
     if not os.path.exists(VIDEOS_DIR) or not os.path.isdir(VIDEOS_DIR):
-        print(f"Creating missing directory: {VIDEOS_DIR}")
         os.makedirs(VIDEOS_DIR, exist_ok=True)
+        new_setup = True
+        
+    if not os.path.exists(CREDENTIALS_FILE):
+        save_json(CREDENTIALS_FILE, {"username": "YOUR_INSTAGRAM_USERNAME", "password": "YOUR_INSTAGRAM_PASSWORD"})
+        new_setup = True
+        
+    if not os.path.exists(CAPTIONS_FILE):
+        save_json(CAPTIONS_FILE, {"video(1).mp4": "Your caption here #reels", "video(2).mp4": "Another caption"})
+        new_setup = True
+        
+    if not os.path.exists(RECORDS_FILE):
+        save_json(RECORDS_FILE, [])
+
+    if new_setup:
+        print("====== INITIAL SETUP REQUIRED ======")
+        print("It looks like you're running this for the first time (or missing core files)!")
+        print("I have automatically generated the following templates for you:")
+        print(f"  1. A folder named '{VIDEOS_DIR}/'")
+        print(f"  2. {CREDENTIALS_FILE}")
+        print(f"  3. {CAPTIONS_FILE}")
+        print("\n--- INSTRUCTIONS ---")
+        print(f"[A] Put your videos inside the '{VIDEOS_DIR}/' folder. Name them clearly, e.g., 'video(1).mp4'.")
+        print(f"[B] Open '{CAPTIONS_FILE}' and map your exact video filenames to their desired captions.")
+        print(f"[C] Open '{CREDENTIALS_FILE}' and input your Instagram login details.")
+        print("\nOnce you have filled these out, run the script (or double-click run.bat) again to start uploading!")
+        print("====================================")
+        return
     
     video_files = [f for f in os.listdir(VIDEOS_DIR) if f.lower().endswith(('.mp4', '.mov'))]
     
     if not video_files:
-        print(f"\n[INFO] No video files found in the '{VIDEOS_DIR}' folder.")
-        print('Please add your videos (e.g., video(1).mp4) to the folder and try again.')
+        print(f"[INFO] No video files found in the '{VIDEOS_DIR}' folder.")
+        print("Please add your videos (e.g., video(1).mp4) to the folder and run again.")
         return
 
     # 2. Load configs
