@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Application State & Configs
+chrome_profile/
+credentials.json
+upload_record.json
+captions.json
+
+# Local Media (Ignore all videos but keep the directory)
+videos/*
+!videos/.keep
+
+# Screenshots (Error logs)
+*.png
